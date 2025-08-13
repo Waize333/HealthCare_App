@@ -42,7 +42,6 @@ app.include_router(enhancement.router)
 app.include_router(tts.router)
 
 # Serve built frontend (after routers so API keeps priority)
-app.mount("/", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..", "..", "frontend_dist"), html=True), name="frontend")
 
 @app.get("/")
 async def root():
