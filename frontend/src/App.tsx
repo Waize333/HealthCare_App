@@ -3,6 +3,7 @@ import { AudioRecorder } from './components/AudioRecorder'
 import { TranscriptionDisplay } from './components/TranscriptionDisplay'
 import { LanguageSelector } from './components/LanguageSelector'
 import { Stethoscope, Mic, FileText, Sun, Moon, Upload } from 'lucide-react'
+import { API_BASE } from './lib/api'
 
 function App() {
   const [currentTranscription, setCurrentTranscription] = useState<string>('')
@@ -61,25 +62,15 @@ function App() {
 
   // Upload a Blob produced by our recorder (auto path)
   const uploadRecordedBlob = async (blob: Blob) => {
+    const form = new FormData()
+    form.append('file', blob, 'recording.webm')
+    form.append('language', selectedLanguage)
     setUploadBusy(true)
     try {
-      const fileToUpload = new File([blob], 'recording.webm', { type: 'audio/webm' })
-      const form = new FormData()
-      form.append('file', fileToUpload)
-      form.append('language', selectedLanguage)
-
-      const res = await fetch('http://localhost:8000/api/stt/transcribe', {
-        method: 'POST',
-        body: form,
-      })
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err.detail || `Upload failed (${res.status})`)
-      }
+      const res = await fetch(`${API_BASE}/api/stt/transcribe`, { method: 'POST', body: form })
       const data = await res.json()
-      if (data && data.transcript) {
-        setCurrentTranscription(data.transcript)
-      }
+      if (res.ok && (data.transcript || data.text)) setCurrentTranscription(data.transcript || data.text)
+      else console.error('Transcribe failed:', data)
     } finally {
       setUploadBusy(false)
     }

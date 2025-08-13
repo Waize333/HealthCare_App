@@ -8,7 +8,9 @@ It handles CORS configuration, API routing, and server initialization.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 import logging
+import os
 
 # Import API routers
 from .api import stt, enhancement, tts  # removed realtime
@@ -28,7 +30,7 @@ app = FastAPI(
 # In production, replace "*" with your actual frontend domain
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000","http://localhost:5173"],  # React development server
+    allow_origins=["*"],  # optional: tighten later
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
@@ -38,6 +40,9 @@ app.add_middleware(
 app.include_router(stt.router)
 app.include_router(enhancement.router)
 app.include_router(tts.router)
+
+# Serve built frontend (after routers so API keeps priority)
+app.mount("/", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..", "..", "frontend_dist"), html=True), name="frontend")
 
 @app.get("/")
 async def root():
@@ -85,14 +90,7 @@ async def general_exception_handler(request, exc):
         content={"error": "Internal server error", "message": "An unexpected error occurred"}
     )
 
-if __name__ == "__main__":
-    import uvicorn
-    # Run the server when this file is executed directly
-    # In production, use a proper ASGI server deployment
-    uvicorn.run(
-        "main:app",
-        host="127.0.0.1",
-        port=8000,
-        reload=True,  # Auto-reload on code changes during development
-        log_level="info"
-    )
+# Optional: remove local dev runner; Docker CMD starts uvicorn
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run("backend.app.main:app", host="0.0.0.0", port=int(os.getenv("PORT", "7860")))
