@@ -1,0 +1,36 @@
+# FastAPI and ASGI server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# CORS support for React frontend
+fastapi-cors==0.0.6
+
+# File upload and multipart handling
+python-multipart==0.0.6
+
+# Deepgram for STT and TTS
+deepgram-sdk==3.2.6
+
+# Google Gemini for LLM
+google-generativeai==0.3.2
+
+# Audio processing
+librosa==0.10.1
+soundfile==0.12.1
+pydub==0.25.1
+
+# Environment variables
+python-dotenv==1.0.0
+
+# Data validation and serialization
+pydantic==2.5.0
+
+# HTTP requests (for external APIs)
+httpx==0.25.2
+
+# Logging
+loguru==0.7.2
+
+# Development dependencies
+pytest==7.4.3
+pytest-asyncio==0.21.1
